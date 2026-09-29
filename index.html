@@ -103,7 +103,7 @@ button{font:inherit;cursor:pointer}
 .pp i{font-style:normal;font-size:12px;color:var(--testo-soft)}
 
 /* ---- aureola ---- */
-.aur{display:block;margin:0 auto;overflow:visible}
+.aur{display:block;margin:0 auto;overflow:visible;max-width:100%;height:auto}
 .aur .arco{fill:none;stroke:#e1eaf5;stroke-width:4.5;stroke-linecap:round}
 .aur .prog{fill:none;stroke:#e0b44a;stroke-width:4.5;stroke-linecap:round;
   filter:drop-shadow(0 0 4px rgba(216,168,44,.55))}
@@ -237,15 +237,36 @@ body.proiezione .g-slot{grid-template-columns:repeat(6,1fr)}
 
 @media print{.barra-azioni,.btn{display:none}}
 
-/* ---- barra azioni a portata di pollice (studente, telefono) ---- */
+/* ---- telefono ---- */
 @media(max-width:680px){
-  .barra-azioni.pollice{position:fixed;left:0;right:0;bottom:0;margin:0;
+  /* dita, non puntatori: ogni comando almeno 46px di altezza */
+  .btn{min-height:46px;padding:12px 18px}
+  .btn.piccolo{min-height:40px;padding:9px 14px;font-size:14px}
+  .btn.fantasma{padding:9px 13px}
+  /* le risposte del quiz sono frasi: devono poter andare a capo */
+  .pila .btn.pieno{min-height:54px;padding:13px 16px;white-space:normal;line-height:1.35}
+  /* niente zoom automatico di iOS quando si tocca un campo */
+  input,select,textarea{font-size:16px}
+  /* un po' di larghezza in più al contenuto */
+  .wrap{padding:16px 16px 64px}
+  .pannello{padding:17px}
+  /* finestre di dialogo a tutta larghezza */
+  .velo{padding:10px}
+  .modale{padding:18px;border-radius:14px}
+  /* nel registro la data va a capo invece di stringere il testo */
+  .mov{flex-wrap:wrap}
+  .mov .ora{width:100%;margin-top:2px}
+  .testata{align-items:flex-start}
+
+  /* i quattro comandi dello studente: due per riga, tutti interi, niente scorrimento */
+  .barra-azioni.pollice{position:fixed;left:0;right:0;bottom:0;
     padding:10px 12px calc(10px + env(safe-area-inset-bottom));
     background:var(--carta);border-top:1px solid var(--bordo);
     box-shadow:0 -6px 18px rgba(22,35,60,.12);z-index:40;
-    flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;justify-content:flex-start}
-  .barra-azioni.pollice .btn{flex:0 0 auto;min-height:48px;min-width:132px;padding:10px 14px;font-size:14px}
-  body{padding-bottom:80px}
+    display:grid;grid-template-columns:1fr 1fr;gap:8px;overflow:visible}
+  .barra-azioni.pollice .btn{width:100%;min-height:52px;padding:10px 12px;
+    font-size:14.5px;line-height:1.25;white-space:normal;text-align:center}
+  body{padding-bottom:calc(142px + env(safe-area-inset-bottom))}
 }
 </style>
 </head>
@@ -1072,13 +1093,14 @@ function vStuHome(){
 
 function vStuRichiesta(){
   const s = studente(U.classeId, U.studId); if(!s) return vStuAccesso();
-  const opz = MOTIVI.filter(m=>m.id!=="quiz").map(m=>`<option value="${m.id}">${esc(m.e)}</option>`).join("");
+  // La carità non si chiede per sé: quel riconoscimento passa da "Segnala un compagno" o dal docente.
+  const opz = MOTIVI.filter(m=>m.id!=="quiz" && m.id!=="carita").map(m=>`<option value="${m.id}">${esc(m.e)}</option>`).join("");
   return `<div class="pannello" style="max-width:560px;margin:0 auto">
     <div class="testata"><div><h2>Chiedi dei punti</h2><small>Spiega bene che cosa hai fatto: decide il docente.</small></div>
       <button class="btn piccolo fantasma" data-act="tornaStud">Indietro</button></div>
     <div class="campo"><label for="tipoRic">Per che cosa</label><select id="tipoRic">${opz}</select></div>
     <div class="campo"><label for="testoRic">Racconta in poche righe</label>
-      <textarea id="testoRic" maxlength="400" placeholder="Es. Ho spiegato l'esercizio a Giulia che era rimasta indietro dopo l'assenza."></textarea></div>
+      <textarea id="testoRic" maxlength="400" placeholder="Es. Ho rifatto a casa tutti gli esercizi che avevo sbagliato nella verifica, uno per uno."></textarea></div>
     <div class="campo" style="max-width:200px"><label for="ppRic">Punti che chiedi (1-10)</label>
       <input id="ppRic" type="number" min="1" max="10" value="5"></div>
     <button class="btn primario pieno" data-act="inviaRichiesta">Invia al docente</button>
